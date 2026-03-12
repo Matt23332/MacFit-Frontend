@@ -1,19 +1,20 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRouter } from 'vue-router';
 
-const route = useRoute();
+const router = useRouter();
 const mobileOpen = ref(false);
 const scrolled = ref(false);
 const navLinks = [
     { label: 'Home', to: '/homePage' },
     { label: 'Login', to: '/login' },
-    { label: 'Sign Up', to: '/signUp' },
     { label: 'Profile', to: '/profile' },
     { label: 'Bundles', to: '/bundles' },
     { label: 'Admin', to: '/admin' },
     { label: 'Gym Locations', to: '/gymLocations' }
 ]
+
+
 
 const handleScroll = () => {
     scrolled.value = window.scrollY > 0;
@@ -27,10 +28,20 @@ onUnmounted(() => window.removeEventListener('scroll', handleScroll));
         <v-app-bar-title>MacFit</v-app-bar-title>
         <v-btn to="/homePage">Home</v-btn>
         <v-btn to="/login">Login</v-btn>
-        <v-btn to="/signUp">Sign Up</v-btn>
-        <v-btn to="/profile">Profile</v-btn>
         <v-btn to="/bundles">Bundles</v-btn>
         <v-btn to="/admin">Admin</v-btn>
         <v-btn to="/gymLocations">Gym Locations</v-btn>
+        <!-- <v-btn icon="mdi-account">P
+            <v-menu activator="parent">
+                <v-list>
+                    <v-list-item>
+                        <v-btn color="primary" to="/profile">Profile</v-btn>
+                    </v-list-item>
+                    <v-list-item>
+                        <v-btn color="primary" @click="logout">Logout</v-btn>
+                    </v-list-item>
+                </v-list>
+            </v-menu>
+        </v-btn> -->
     </v-app-bar>
 </template>
