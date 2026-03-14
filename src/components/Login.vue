@@ -1,15 +1,43 @@
 <script setup>
 
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import api from '../services/api';
+
+const router = useRouter();
 
 const email = ref('');
 const password = ref('');
 const showPassword = ref(false);
 const loading = ref(false);
+const errorMessage = ref('');
 
-const handleLogin = () => {
+const handleLogin = async () => {
     loading.value = true;
-    setTimeout(() => { loading.value = false; }, 1800);
+    errorMessage.value = '';
+
+    try {
+        const { data } = await api.post('/login', {
+            email: email.value,
+            password: password.value,
+        });
+
+        localStorage.setItem('token', data.access_token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+
+        router.push('/homePage');
+    } catch (err) {
+        console.log(err.response?.data);
+        if (err.response?.status === 401) {
+            errorMessage.value =  'Invalid email or password.';
+        } else if (err.response?.status === 403) {
+            errorMessage.value = 'Please verify your email before logging in.';
+        } else {
+            errorMessage.value = err.response?.data?.message || 'Something went wrong.';
+        }
+    } finally {
+        loading.value = false;
+    }
 }
 </script>
 
@@ -93,6 +121,11 @@ const handleLogin = () => {
                             <span>Remember me</span>
                         </label>
                         <a href="#" class="forgot-link">Forgot Password</a>
+                    </div>
+
+                    <div v-if="errorMessage" class="error-banner">
+                        <v-icon icon="mdi-alert-cirlce-outline" class="error-icon"></v-icon>
+                        {{ errorMessage }}
                     </div>
 
                     <button type="submit" class="submit-btn" :class="{ 'submit-btn--loading': loading }">
@@ -366,6 +399,23 @@ const handleLogin = () => {
     justify-content: space-between;
     align-items: center;
     margin-top: -0.2rem;
+}
+
+.error-banner {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(255, 60, 60, 0.1);
+    border: 1px solid rgba(255, 60, 60, 0.3);
+    color: #ff6060;
+    padding: 0.75rem 1rem;
+    font-size: 0.82rem;
+}
+
+.error-icon {
+    color: #ff6060 !important;
+    font-size: 1.1rem !important;
+    flex-shrink: 0;
 }
 
 .remember-label {

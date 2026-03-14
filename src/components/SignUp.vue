@@ -1,6 +1,12 @@
 <script setup>
 
 import { ref, computed } from 'vue';
+import api from '../services/api';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+const errors = ref({});
+const serverError = ref('');
 
 const form = ref({
     firstName: '',
@@ -49,9 +55,37 @@ const passwordMatch = computed(() =>
     form.value.confirmPassword && form.value.password === form.value.confirmPassword
 )
 
-const handleSubmit = () => {
-    loading.value = true
-    setTimeout(() => { loading.value = false; }, 1800);
+const handleSubmit = async () => {
+    loading.value = true;
+    errors.value = {};
+    serverError.value = '';
+
+    try {
+      const payload = new FormData()
+      payload.append('name', `${form.value.firstName} ${form.value.lastName}`)
+      payload.append('email', form.value.email)
+      payload.append('phone', form.value.phone)
+      payload.append('password', form.value.password)
+      payload.append('confirm_password', form.value.confirmPassword)
+      payload.append('gender', form.value.gender)
+      payload.append('dob', form.value.dob)
+      payload.append('gym_location', form.value.gymLocation)
+
+      const { data } = await api.post('/register', payload)
+      localStorage.setItem('token', data.token)
+      localStorage.setItem('user', JSON.stringify(data.user))
+
+      router.push('/login');
+    } catch (err) {
+      console.log(err.response.data)
+      if (err.response?.status === 422) {
+        errors.value = err.response.data.errors ?? {};
+      } else {
+        serverError.value = err.response?.data?.message ?? 'Something went wrong. Please try again.';
+      }
+    } finally {
+      loading.value = false;
+    }
 }
 
 const nextStep = () => { if (step.value < totalSteps) step.value++ }
@@ -123,6 +157,7 @@ const prevStep = () => { if (step.value > 1) step.value-- }
                     </div>
                 </div>
 
+                <div v-if="serverError" class="server-error">{{ serverError }}</div>
                 <form @submit.prevent="handleSubmit">
 
                     <!--Step 1: Personal Information-->
@@ -151,6 +186,7 @@ const prevStep = () => { if (step.value > 1) step.value-- }
                                     <input v-model="form.email" type="email" class="field-input"
                                         placeholder="Email Address" />
                                 </div>
+                                <span v-if="errors.email" class="mismatch-text">{{ errors.email[0] }}</span>
                             </div>
                             <div class="field-group">
                                 <label class="field-label">Phone Number</label>
@@ -159,6 +195,7 @@ const prevStep = () => { if (step.value > 1) step.value-- }
                                     <input v-model="form.phone" type="text" class="field-input"
                                         placeholder="Phone Number" />
                                 </div>
+                                <span v-if="errors.phone" class="mismatch-text">{{ errors.phone[0] }}</span>
                             </div>
                             <div class="field-row">
                                 <div class="field-group">
@@ -178,6 +215,7 @@ const prevStep = () => { if (step.value > 1) step.value-- }
                                         <v-icon icon="mdi-calendar-outline" class="field-icon"></v-icon>
                                         <input v-model="form.dob" type="date" class="field-input field-date"
                                             placeholder="Date of Birth" />
+                                        <span v-if="errors.dob" class="mismatch-text">{{ errors.dob[0] }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -460,6 +498,15 @@ export default {
   padding: 3rem 2rem;
   background: #0a0a0a;
   overflow-y: auto;
+}
+
+.server-error {
+  background: rgba(255, 60, 60, 0.1);
+  border: 1px solid rgba(255, 60, 60, 0.3);
+  color: #ff6060;
+  padding: 0.75rem 1rem;
+  font-size: 0.82rem;
+  margin-bottom: 1rem;
 }
 
 .form-card {
