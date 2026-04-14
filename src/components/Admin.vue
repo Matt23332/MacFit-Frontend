@@ -10,9 +10,11 @@ const tab = ref(null)
 const search = ref('')
 
 const showAddUserDialog = ref(false)
-const showAddRoleDialog = ref(false)
-const showAddEquipmentDialog = ref(false)
 const showEditUserDialog = ref(false)
+const showAddRoleDialog = ref(false)
+const showEditRoleDialog = ref(false)
+const showAddEquipmentDialog = ref(false)
+const showEditEquipmentDialog = ref(false)
 
 const editingUserId = ref(null)
 const firstName = ref(null)
@@ -689,6 +691,103 @@ onMounted(() => {
         <button class="dialog-btn-ghost" @click="close">CANCEL</button>
         <button class="dialog-btn-primary" :disabled="loading" @click="addEquipment">
           <span v-if="!loading">SAVE EQUIPMENT</span>
+          <span v-else>SAVING...</span>
+        </button>
+      </div>
+    </div>
+  </v-dialog>
+
+  <!--EDIT EQUIPMENT DIALOG-->
+  <v-dialog v-model="showEditEquipmentDialog" max-width="500">
+    <div class="dialog-card">
+      <div class="dialog-header">
+        <div>
+          <div class="dialog-eyebrow">EDIT RECORD</div>
+          <h3 class="dialog-title">Edit Equipment</h3>
+        </div>
+        <button class="dialog-close" @click="close">
+          <v-icon icon="mdi-close" size="18"></v-icon>
+        </button>
+      </div>
+      <div class="dialog-body">
+        <div class="field-group">
+          <label class="field-label">EQUIPMENT NAME</label>
+          <div class="field-wrap">
+            <input v-model="name" type="text" class="field-input" />
+          </div>
+        </div>
+        <div class="field-group">
+          <label class="field-label">MODEL NUMBER</label>
+          <div class="field-wrap">
+            <input v-model="modelNumber" type="text" class="field-input" />
+          </div>
+        </div>
+        <div class="field-group">
+          <label class="field-label">VALUE</label>
+          <div class="field-wrap">
+            <input v-model="value" type="text" class="field-input" />
+          </div>
+        </div>
+        <div class="field-group">
+          <label class="field-label">STATUS</label>
+          <div class="field-wrap">
+            <input v-model="status" type="text" class="field-input" />
+          </div>
+        </div>
+        <div class="field-group">
+          <label class="field-label">USAGE</label>
+          <div class="field-wrap">
+            <input v-model="usage" type="text" class="field-input" />
+          </div>
+        </div>
+        <div v-if="error" class="dialog-error">{{ error }}</div>
+      </div>
+      <div class="dialog-footer">
+        <button class="dialog-btn-ghost" @click="close">CANCEL</button>
+        <button class="dialog-btn-primary" :disabled="loading" @click="updateEquipment">
+          <span v-if="!loading">UPDATE EQUIPMENT →</span>
+          <span v-else>UPDATING...</span>
+        </button>
+      </div>
+    </div>
+  </v-dialog>
+
+  <!--ADD ROLE DIALOG-->
+  <v-dialog v-model="showAddRoleDialog" max-width="500">
+    <div class="dialog-card">
+      <div class="dialog-header">
+        <div>
+          <div class="dialog-eyebrow">ADMIN ACTION</div>
+          <h3 class="dialog-title">Add New Role</h3>
+        </div>
+        <button class="dialog-close" @click="close">
+          <v-icon icon="mdi-close" size="18"></v-icon>
+        </button>
+      </div>
+
+      <div class="dialog-body">
+        <div class="field-row">
+          <div class="field-group">
+            <label class="field-label">ROLE NAME</label>
+            <div class="field-wrap">
+              <input v-model="roleName" type="text" class="field-input" placeholder="Role Name">
+            </div>
+          </div>
+          <div class="field-group">
+            <label class="field-label">ROLE DESCRIPTION</label>
+            <div class="field-wrap">
+              <input v-model="roleDescription" type="text" class="field-input" placeholder="Role Description">
+            </div>
+          </div>
+        </div>
+
+        <div v-if="error" class="dialog-error">{{ error }}</div>
+      </div>
+
+      <div class="dialog-footer">
+        <button class="dialog-btn-ghost" @click="close">CANCEL</button>
+        <button class="dialog-btn-primary" :disabled="loading" @click="addRole">
+          <span v-if="!loading">SAVE ROLE</span>
           <span v-else>SAVING...</span>
         </button>
       </div>
